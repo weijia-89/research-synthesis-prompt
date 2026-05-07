@@ -65,7 +65,8 @@ Per-source checks:
 - **HARKing detection** — hypothesis in Discussion not Introduction, post-hoc subgroups framed as primary findings, suspiciously clean hypothesis-result alignment all trigger `[HARKING-SUSPECTED]` and a one-tier confidence reduction.
 - **Meta-analysis quality** — I² value, fixed vs. random effects model selection, funnel plot symmetry, double-counting of underlying RCTs across synthesized meta-analyses, CI interpretation (CI crossing zero means the effect may be zero).
 
-This doesn't include all the ways data gets manipulated. Future iterations will be stricter but there's also a tradeoff where exceptionally niche research gets no results.
+Note that this doesn't include all the ways data gets manipulated. Future iterations will be stricter but there's also a tradeoff where exceptionally niche research gets no results.
+
 ---
 
 ## Output structure
