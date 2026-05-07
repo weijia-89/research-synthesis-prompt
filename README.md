@@ -8,6 +8,10 @@ Each run coordinates three independent LLM research agents, then passes their co
 
 ## What it does
 
+<img src="assets/sketchplanations-thesis-antithesis-synthesis.png" width="420" alt="Thesis, Antithesis, Synthesis">
+
+*[Thesis, Antithesis, Synthesis](https://sketchplanations.com/thesis-antithesis-synthesis) by Sketchplanations, [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)*
+
 You'll use this prompt on separate research agents independently. A downstream agent ingests all three outputs and applies Hegelian dialectics: strongest case for each claim, strongest case against it, synthesis that survives both. You then run the phases again if you want an even stronger evidence base.
 
 Cross-agent disagreements surface as [CONFLICT] flags and the agent is instructed to evaluate based on a confidence matrix that has source tiers, hiearchy of evidence epistemology, and basic frequentist and Bayesian statistical rigor baked in along with a cursory analysis of best practices when it comes to methodology.
@@ -19,9 +23,6 @@ The output is an HTML research report with a sticky navigation TOC, theoretical 
 ---
 
 ## Architecture
-
-![Thesis, Antithesis, Synthesis](assets/sketchplanations-thesis-antithesis-synthesis.png)
-*[Thesis, Antithesis, Synthesis](https://sketchplanations.com/thesis-antithesis-synthesis) by Sketchplanations, [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)*
 
 **Verifier model**
 A dedicated synthesis agent checks whether claims are supported by cited sources. Claim generation and claim verification are separate steps. The same model that produced a claim doesn't get to decide whether it's trustworthy.
@@ -42,7 +43,8 @@ Claims where the primary evidence may fall within 12 months of an LLM's training
 
 ## Evidence methodology
 
-![Hierarchy of Evidence](assets/Drawn_image_illustrating_the_Hierarchy_of_Evidence.png)
+<img src="assets/Drawn_image_illustrating_the_Hierarchy_of_Evidence.png" width="420" alt="Hierarchy of Evidence">
+
 *[Hierarchy of Evidence](https://commons.wikimedia.org/wiki/File:Drawn_image_illustrating_the_Hierarchy_of_Evidence.png) by Wikimedia contributors, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)*
 
 Every source is classified by study design before a confidence score is assigned. The tier sets the ceiling — quality issues (underpowered study, suspected HARKing, high COI) reduce from there.
