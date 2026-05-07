@@ -14,7 +14,7 @@ Cross-agent disagreements surface as [CONFLICT] flags and the agent is instructe
 
 The part that took the most work wasn't the synthesis logic but building in the understanding that three agents agreeing doesn't mean three independent data points. Just because all the people at your gym drink pre-workout doesn't mean that the 2000% of your DV of taurine they're taking will be anything more than placebo effect. The goal of this prompt is to incorporate skepticism, not to normalize global confusion.
 
-The output is an HTML research report with a sticky navigation TOC, theoretical foundations section, tactical implementation guide, inline evidence ledger, and a <summary> block in atomic CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS format, grouped by [AGREEMENT], [CONFLICT], and [SINGLE SOURCE]. The summary format exists specifically so downstream synthesis agents can ingest it without re-reading the whole report whereas the HTML5 FE wrapper is just to make your time reading the output less overwhelming.
+The output is an HTML research report with a sticky navigation TOC, theoretical foundations section, tactical implementation guide, inline evidence ledger, and a summary block in atomic CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS format, grouped by [AGREEMENT], [CONFLICT], and [SINGLE SOURCE]. The summary format exists specifically so downstream synthesis agents can ingest it without re-reading the whole report whereas the HTML5 FE wrapper is just to make your time reading the output less overwhelming.
 
 ---
 
