@@ -95,7 +95,7 @@ The HTML report includes:
 
 ## Usage
 
-Paste the contents of `prompt.md` as the system prompt for your research agent (Gemini Deep Research, ChatGPT Deep Research, or Claude). Replace `{{RESEARCH_TOPIC}}` with your topic. Run three agents in parallel. Pass all three outputs to a synthesis agent with the same prompt.
+Paste the contents of `prompt.md` as the system prompt for your research agents. Replace `{{RESEARCH_TOPIC}}` with your topic. Run at least two agents in parallel. Pass all outputs to a synthesis agent with the same prompt.
 
 ---
 
