@@ -20,6 +20,9 @@ The output is an HTML research report with a sticky navigation TOC, theoretical 
 
 ## Architecture
 
+![Thesis, Antithesis, Synthesis](assets/sketchplanations-thesis-antithesis-synthesis.png)
+*[Thesis, Antithesis, Synthesis](https://sketchplanations.com/thesis-antithesis-synthesis) by Sketchplanations, [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)*
+
 **Verifier model**
 A dedicated synthesis agent checks whether claims are supported by cited sources. Claim generation and claim verification are separate steps. The same model that produced a claim doesn't get to decide whether it's trustworthy.
 
@@ -38,6 +41,9 @@ Claims where the primary evidence may fall within 12 months of an LLM's training
 ---
 
 ## Evidence methodology
+
+![Hierarchy of Evidence](assets/Drawn_image_illustrating_the_Hierarchy_of_Evidence.png)
+*[Hierarchy of Evidence](https://commons.wikimedia.org/wiki/File:Drawn_image_illustrating_the_Hierarchy_of_Evidence.png) by Wikimedia contributors, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)*
 
 Every source is classified by study design before a confidence score is assigned. The tier sets the ceiling — quality issues (underpowered study, suspected HARKing, high COI) reduce from there.
 
