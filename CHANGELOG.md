@@ -1,19 +1,5 @@
 # Changelog
 
-## v3.1 (May 2026)
-
-Ported the fixes from adversarial-review-prompt back into prompt.md. Some of these should've been there from the start.
-
-URL verification in the synthesis stage was checking whether a link resolved, not whether the source actually said what I was citing it for. A 200 OK pointing to a real paper on a related topic is not verification. Two gates now: HTTP status first, then parse the body text and find the specific assertion. Not in the source text: drops to speculative regardless of tier. Paywalled (abstract-only): can't verify methodology or population — one-tier downgrade and flagged.
-
-Same gap in zombie stat tracing. I was looking for the source, not confirming the number was actually in it. Fixed.
-
-The calibration failure direction was wrong. LLMs skew toward high confidence, not the middle. Added a check: if more than half the final scores come in at 80+, run a downward pressure pass. Three independent papers confirm the overconfidence direction (arXiv 2502.11028, 2508.06225, 2603.09985).
-
-Added the attack rating taxonomy to adversarial self-review: [strong — downgrade] / [partial — survives with caveats] / [no viable attack found]. And the "consensus ≠ compounded confidence" rule now includes the correlated error data — same-provider models agree about 60% of the time when both get something wrong (arXiv 2506.07962), so convergence from architecturally similar models isn't the independent signal it looks like.
-
----
-
 ## v4.1 (May 2026)
 
 Adversarially reviewed adversarial-review-prompt.md and found five things wrong or overstated.
@@ -37,6 +23,20 @@ Separate adversarial review stage: adversarial-review-prompt.md.
 The synthesis prompt could put together a coherent initial report but had no mechanism for actively trying to break what it built. This stage starts from finished claims and tries to prove them wrong. Zombie stat tracing, disconfirmation searches, cross-tool indirectness checks, attack rating on every counterargument.
 
 Two modes. Mode A runs all eight phases in one pass for models with live web access. Mode B generates five prompts for distributing phases across specialized tools — Perplexity for search, GPT-4o for indirectness reasoning, Claude for re-synthesis. Mode B Prompt 5 is always the final step regardless of how you ran phases 1–4.
+
+---
+
+## v3.1 (May 2026)
+
+Ported the fixes from adversarial-review-prompt back into prompt.md. Some of these should've been there from the start.
+
+URL verification in the synthesis stage was checking whether a link resolved, not whether the source actually said what I was citing it for. A 200 OK pointing to a real paper on a related topic is not verification. Two gates now: HTTP status first, then parse the body text and find the specific assertion. Not in the source text: drops to speculative regardless of tier. Paywalled (abstract-only): can't verify methodology or population — one-tier downgrade and flagged.
+
+Same gap in zombie stat tracing. I was looking for the source, not confirming the number was actually in it. Fixed.
+
+The calibration failure direction was wrong. LLMs skew toward high confidence, not the middle. Added a check: if more than half the final scores come in at 80+, run a downward pressure pass. Three independent papers confirm the overconfidence direction (arXiv 2502.11028, 2508.06225, 2603.09985).
+
+Added the attack rating taxonomy to adversarial self-review: [strong — downgrade] / [partial — survives with caveats] / [no viable attack found]. And the "consensus ≠ compounded confidence" rule now includes the correlated error data — same-provider models agree about 60% of the time when both get something wrong (arXiv 2506.07962), so convergence from architecturally similar models isn't the independent signal it looks like.
 
 ---
 
