@@ -1,40 +1,63 @@
 # Changelog
 
+## v3.1 (May 2026)
+
+Ported the fixes from adversarial-review-prompt back into prompt.md. Some of these should've been there from the start.
+
+URL verification in the synthesis stage was checking whether a link resolved, not whether the source actually said what I was citing it for. A 200 OK pointing to a real paper on a related topic is not verification. Two gates now: HTTP status first, then parse the body text and find the specific assertion. Not in the source text: drops to speculative regardless of tier. Paywalled (abstract-only): can't verify methodology or population — one-tier downgrade and flagged.
+
+Same gap in zombie stat tracing. I was looking for the source, not confirming the number was actually in it. Fixed.
+
+The calibration failure direction was wrong. LLMs skew toward high confidence, not the middle. Added a check: if more than half the final scores come in at 80+, run a downward pressure pass. Three independent papers confirm the overconfidence direction (arXiv 2502.11028, 2508.06225, 2603.09985).
+
+Added the attack rating taxonomy to adversarial self-review: [strong — downgrade] / [partial — survives with caveats] / [no viable attack found]. And the "consensus ≠ compounded confidence" rule now includes the correlated error data — same-provider models agree about 60% of the time when both get something wrong (arXiv 2506.07962), so convergence from architecturally similar models isn't the independent signal it looks like.
+
+---
+
+## v4.1 (May 2026)
+
+Adversarially reviewed adversarial-review-prompt.md and found five things wrong or overstated.
+
+The calibration check was targeting middle compression: "flag if 70% of scores fall in 72–85." That's not what the literature shows. The failure direction is overconfidence toward high scores, not the middle. The old check would have flagged legitimate scoring while missing the actual problem. Fixed the threshold and direction.
+
+URL verification was still just a URL-existence check. A model can hallucinate a citation pointing to a real paper on a related domain, fetch it successfully, and call it verified. Phase 1 and Prompt 1 now parse body text and look for the specific assertion. [CLAIM NOT IN SOURCE] drops to speculative. [ABSTRACT-ONLY] for paywalled pages where you can't verify methodology. [CLAIM AMBIGUOUS IN SOURCE] when the source discusses the same domain but not the specific number.
+
+The "Mode A is broken" classification was too broad. Huang et al. (ICLR 2024) is specifically about intrinsic self-correction with no external feedback. Phases with URL fetching have external grounding that partially escapes it. Phase 6 — pure reasoning, no tools — is the specific failure point. Narrowed it there.
+
+"Genuinely independent" for Mode B was overstated. arXiv 2506.07962 puts cross-model error correlation at about 60% for same-provider pairs. Better than single-model, not independent. Added a model diversity warning and a model-selection prompt so the tradeoff is visible before you run anything.
+
+The context isolation instruction was listed as the primary fix for anchoring bias. Instruction-based debiasing has weak evidence for deep anchoring. Promoted the fresh context Final Gate — pass the revised claims table to a new session with no reasoning chain — as the actual structural escape.
+
+---
+
+## v4 (May 2026)
+
+Separate adversarial review stage: adversarial-review-prompt.md.
+
+The synthesis prompt could put together a coherent initial report but had no mechanism for actively trying to break what it built. This stage starts from finished claims and tries to prove them wrong. Zombie stat tracing, disconfirmation searches, cross-tool indirectness checks, attack rating on every counterargument.
+
+Two modes. Mode A runs all eight phases in one pass for models with live web access. Mode B generates five prompts for distributing phases across specialized tools — Perplexity for search, GPT-4o for indirectness reasoning, Claude for re-synthesis. Mode B Prompt 5 is always the final step regardless of how you ran phases 1–4.
+
+---
+
 ## v3 (May 2026)
 
-Evidence methodology layer, built from systematic review of research methodology literature (MASS research guides on study design, statistics, and interpretation).
+Evidence methodology layer. v2 could find sources but had no enforcement of a consistent evidence hierarchy and no way to catch common methodological failure modes.
 
-**Added:**
-- Study design hierarchy with tier-based confidence ceilings. Tier determines the maximum possible confidence score; quality issues reduce from there.
-- Pre-registration check (ClinicalTrials.gov, PROSPERO, OSF). Unregistered RCTs flagged `[UNREGISTERED-RCT]`.
-- Statistical power requirement. Underpowered studies (N < 30/group, no power analysis) flagged explicitly.
-- Effect size gate. ≥70 confidence claims must report effect size alongside p-values. p-value alone no longer sufficient.
-- HARKing detection as a named failure mode. Signs: hypothesis in Discussion not Introduction, post-hoc subgroups as primary findings, suspiciously clean alignment. Flags `[HARKING-SUSPECTED]` and reduces confidence one tier.
-- Meta-analysis quality checklist: I² and heterogeneity interpretation, fixed vs. random effects model selection, funnel plot symmetry (`[FUNNEL-UNREPORTED]` if absent), double-counting check across synthesized meta-analyses (`[DOUBLE-COUNTED]`), CI interpretation (CI crossing zero = effect may be zero).
+Study design hierarchy with tier-based confidence ceilings — tier sets the maximum possible score, quality issues reduce from there. Pre-registration checks (ClinicalTrials.gov, PROSPERO, OSF). Effect size gate: ≥70 confidence claims need an effect size alongside any p-value. HARKing detection — hypothesis appearing in Discussion rather than Introduction, post-hoc subgroups framed as primary findings, suspiciously clean hypothesis-result alignment. Meta-analysis quality checklist: I², fixed vs. random effects model selection, funnel plot symmetry, double-counting of underlying RCTs, CI interpretation.
 
-**Rationale:** v2 had strong source discovery and confidence infrastructure but didn't enforce a consistent evidence hierarchy or catch common methodological failure modes. The tier-ceiling system makes the confidence rubric internally consistent — a claim can't reach 85 on expert opinion alone.
+The tier-ceiling system makes the rubric internally consistent. A claim can't reach 85 on expert opinion alone.
 
 ---
 
 ## v2 (April 2026)
 
-**Added:**
-- Verbatim quote passthrough for ≥70 confidence claims. Claims must include ≤3 sentences of direct source text. Reconstructed or paraphrased excerpts labeled `[QUOTE UNVERIFIED]`.
-- Atomic handoff format for downstream synthesis agents: `CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS`, grouped by `[AGREEMENT]` / `[CONFLICT]` / `[SINGLE SOURCE]`.
-- `[CONFLICT]` flagging. Downstream agents instructed to flag any claim where independent research contradicts the report, with source and confidence score.
-- `[RECENCY RISK]` temporal gate. Claims where primary evidence may fall within 12 months of the model's training cutoff labeled provisional.
-- Consensus ≠ compounded confidence rule. Three agents citing the same underlying papers treated as one data point, not three.
+v1 could find sources but had no way to tell whether three agents agreeing meant "this is well-established" or "all three trained on the same papers."
 
-**Rationale:** v1 had strong research depth but no mechanism to distinguish "three agents all found this because it's well-established" from "three agents all found this because they all trained on the same papers." The quote passthrough forces the system to hold high-confidence claims to a higher evidentiary bar.
+Verbatim quote passthrough for ≥70 confidence claims — direct source text required, not paraphrase. Reconstructed from memory: [QUOTE UNVERIFIED]. Atomic handoff format for downstream synthesis agents (CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS), grouped by [AGREEMENT] / [CONFLICT] / [SINGLE SOURCE]. [CONFLICT] flagging for cross-agent disagreement. [RECENCY RISK] for claims where primary evidence may fall within 12 months of training cutoff.
 
 ---
 
 ## v1 (early 2026)
 
-Initial version.
-
-- Source discovery: academic databases (PubMed, JSTOR, Google Scholar, Semantic Scholar, Scopus), preprints (arXiv, SSRN, bioRxiv, OSF), citation chains (forward + backward), grey literature, lateral disciplines, non-English literature, contrarian sources, retraction checks.
-- Per-source trustworthiness: venue quality, author credentials, funding/COI, methodology (N, controls, blinding), replication status, recency, citation context.
-- Confidence scoring 0–100 with per-claim justification (study type, replication status, sample size, methodology quality, recency).
-- Adversarial self-review: after synthesis, argues against own conclusions; reports where counterarguments succeed.
-- Structured output: HTML report with evidence ledger, inline citations, learning resources, future research directions.
+Initial version. Source discovery across academic databases (PubMed, JSTOR, Google Scholar, Semantic Scholar, Scopus), preprints (arXiv, SSRN, bioRxiv, OSF), citation chains forward and backward, grey literature, lateral disciplines, non-English lit, contrarian sources, Retraction Watch. Per-source trustworthiness: venue quality, author credentials, funding/COI, methodology, replication status, recency, citation context. Confidence scoring 0–100. Adversarial self-review pass. Structured HTML output with evidence ledger.

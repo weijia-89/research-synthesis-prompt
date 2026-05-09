@@ -47,7 +47,7 @@ Claims where the primary evidence may fall within 12 months of an LLM's training
 
 *[Hierarchy of Evidence](https://commons.wikimedia.org/wiki/File:Drawn_image_illustrating_the_Hierarchy_of_Evidence.png) by Wikimedia contributors, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)*
 
-Every source is classified by study design before a confidence score is assigned. The tier sets the ceiling — quality issues (underpowered study, suspected HARKing, high COI) reduce from there.
+Every source is classified by study design before a confidence score is assigned. The tier is the ceiling; quality issues (underpowered study, suspected HARKing, high COI) reduce from there.
 
 | Study design tier | Confidence ceiling |
 |---|---|
@@ -59,13 +59,13 @@ Every source is classified by study design before a confidence score is assigned
 
 Per-source checks:
 
-- **Pre-registration** — ClinicalTrials.gov, PROSPERO, OSF. Unregistered RCTs flagged `[UNREGISTERED-RCT]`. Pre-registration is the clearest signal against p-hacking and HARKing.
-- **Statistical power** — N ≥ 30 per group and power analysis present. Underpowered studies produce false negatives as readily as false positives.
-- **Effect size** — required alongside p-values for ≥70 confidence claims (Cohen's d, partial η², odds ratio, RR, or mean difference with units). A p-value alone doesn't support a high-confidence claim.
-- **HARKing detection** — hypothesis in Discussion not Introduction, post-hoc subgroups framed as primary findings, suspiciously clean hypothesis-result alignment all trigger `[HARKING-SUSPECTED]` and a one-tier confidence reduction.
-- **Meta-analysis quality** — I² value, fixed vs. random effects model selection, funnel plot symmetry, double-counting of underlying RCTs across synthesized meta-analyses, CI interpretation (CI crossing zero means the effect may be zero).
+- Pre-registration is checked via ClinicalTrials.gov, PROSPERO, and OSF. Unregistered RCTs get flagged `[UNREGISTERED-RCT]`; it's the clearest signal against p-hacking and HARKing.
+- Statistical power: N ≥ 30 per group with a power analysis present. Underpowered studies produce false negatives as readily as false positives.
+- For ≥70 confidence claims, effect size is required alongside p-values (Cohen's d, partial η², odds ratio, RR, or mean difference with units). A p-value alone doesn't get there.
+- HARKing gets flagged when the hypothesis shows up in Discussion rather than Introduction, when post-hoc subgroups are framed as primary findings, or when the hypothesis-result alignment is suspiciously clean. All of these trigger `[HARKING-SUSPECTED]` and a one-tier reduction.
+- For meta-analyses: I² value, whether the fixed or random effects model was used and why, funnel plot symmetry, whether the same underlying RCTs are getting double-counted across synthesized meta-analyses, and CI interpretation (a CI crossing zero means the effect may be zero).
 
-Note that this doesn't include all the ways data gets manipulated. Future iterations will be stricter but there's also a tradeoff where exceptionally niche research gets no results.
+This doesn't include all the ways data gets manipulated. Future iterations will be stricter but there's also a tradeoff where exceptionally niche research gets no results.
 
 ---
 
@@ -76,26 +76,38 @@ The HTML report includes:
 - Sticky navigation TOC
 - Theoretical foundations and key concepts (non-expert accessible)
 - Tactical implementation guide
-- Evidence ledger — full source URLs, confidence scores, justifications, verbatim quotes
+- Evidence ledger with full source URLs, confidence scores, justifications, verbatim quotes
 - Learning resources
 - Future research directions with confidence scores
 - `<summary>` block (atomic `CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS` format, grouped by `[AGREEMENT]` / `[CONFLICT]` / `[SINGLE SOURCE]`)
 
 ---
 
-## Version history
+## Usage
 
-**v1** — Source discovery across databases, preprints, grey lit, citation chains, contrarian sources. Per-source trustworthiness assessment (venue, author, funding/COI, methodology, replication, recency, citation context). Confidence scoring 0–100 with per-claim justification. Adversarial self-review pass.
+Paste `prompt.md` as the system prompt. Replace `{{RESEARCH_TOPIC}}`. Run three agents in parallel, then pass all three outputs to a fourth synthesis agent running the same prompt.
 
-**v2** — Verbatim quote passthrough for ≥70 confidence claims. Atomic handoff format for downstream synthesis agents. `[CONFLICT]` flags for cross-agent disagreement. `[RECENCY RISK]` temporal gate.
+After synthesis, copy the `<summary>` block from the output and paste it into `adversarial-review-prompt.md`. That stage starts from finished claims and tries to break them, not continue building on them. Two modes:
 
-**v3 (current)** — Full evidence methodology layer: study design hierarchy with tier-based confidence ceilings, pre-registration checks, effect size gates, HARKing detection, meta-analysis quality checklist (I², model selection, funnel plot, double-counting, CI interpretation).
+Mode A runs all eight phases in one pass; you need a model with live web access (Claude, Gemini, Perplexity) and you get a revised claims table with deltas and attack ratings at the end. Mode B generates five self-contained prompts you distribute across specialized tools: Perplexity for disconfirmation search, GPT-4o for indirectness reasoning, Claude for re-synthesis. It opens with a model-selection step to account for architectural similarity between whatever you're running, and Prompt 5 is always the final step regardless of how you ran the others.
+
+The two stages are doing different work: synthesis finds sources and builds a picture from them; the adversarial pass comes in after and tries to poke holes in what was built.
 
 ---
 
-## Usage
+## Version history
 
-Paste the contents of `prompt.md` as the system prompt for your research agents. Replace `{{RESEARCH_TOPIC}}` with your topic. Run at least two agents in parallel. Pass all outputs to a synthesis agent with the same prompt.
+**v1:** Source discovery across academic databases, preprints, grey lit, citation chains (forward and backward), contrarian sources, Retraction Watch. Per-source trustworthiness assessment on venue, author credentials, funding and COI, methodology, replication status, recency, and citation context. Confidence scoring 0–100 with per-claim justification. Adversarial self-review pass.
+
+**v2:** v1 could find sources but had no way to tell whether three agents agreeing meant "this is well-established" or "all three trained on the same papers." Added verbatim quote passthrough for ≥70 confidence claims, requiring direct source text, labeled `[QUOTE UNVERIFIED]` if reconstructed from memory. Added the atomic handoff format (`CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS`) so downstream synthesis agents could ingest without re-reading the full report. Added `[CONFLICT]` flags for cross-agent disagreement and `[RECENCY RISK]` for claims with evidence that may fall within 12 months of training cutoff.
+
+**v3:** Evidence methodology layer. v2 could find sources but had no enforcement of a consistent evidence hierarchy and no way to catch common methodological failure modes. Added study design tier-based confidence ceilings, pre-registration checks, effect size gates, HARKing detection, and the meta-analysis quality checklist (I², fixed vs. random effects model selection, funnel plot symmetry, double-counting of underlying RCTs, CI interpretation). The tier-ceiling system makes the rubric internally consistent. A claim can't reach 85 on expert opinion alone.
+
+**v3.1:** Backport of fixes found during adversarial review of the downstream prompt. URL verification was checking whether a link resolved, not whether the source actually said what was being cited. A 200 OK pointing to a real paper on a related topic is not verification. Added two gates: HTTP status first, then parse the body text and find the specific assertion. Not in the source text: drops to speculative regardless of tier. Same gap in zombie stat tracing: the check was looking for the source, not confirming the number was in it. Fixed. The calibration check was targeting the wrong direction: LLMs skew toward high confidence, not the middle, so the check now flags when more than half the final scores come in at ≥80 and forces a downward pressure pass. Added attack rating taxonomy to adversarial self-review. Strengthened the consensus rule with actual correlated error data: same-provider model pairs agree about 60% of the time when both get something wrong (arXiv 2506.07962), so convergence from similar models is not the independent signal it looks like.
+
+**v4:** Separate adversarial review stage: `adversarial-review-prompt.md`. The synthesis prompt could put together a coherent initial report but had no mechanism for actively trying to break what it built. This stage starts from finished claims and tries to prove them wrong: zombie stat tracing, disconfirmation searches, cross-tool indirectness checks, attack rating on every counterargument. Two modes. Mode A runs all eight phases in one pass for models with live web access. Mode B generates five prompts for distributing phases across specialized tools.
+
+**v4.1:** Adversarially reviewed the adversarial review prompt and found five things wrong or overstated. The calibration check was targeting middle compression instead of the actual documented failure direction (overconfidence toward high scores). URL verification was still just a URL-existence check; a model can hallucinate a citation pointing to a real paper on a related domain and call it verified. Phase 1 and Prompt 1 now parse body text and look for the specific assertion. The "Mode A is broken" classification was too broad: Huang et al. (ICLR 2024) is about intrinsic self-correction with no external feedback, so phases with URL fetching partially escape it. Phase 6 (pure reasoning, no tools) is the specific failure point. "Genuinely independent" for Mode B was overstated: arXiv 2506.07962 puts cross-model error correlation at about 60% for same-provider pairs. Mode B now opens with a model-selection prompt so the diversity tradeoff is visible before you run anything. Promoted the fresh context Final Gate to the primary structural escape from anchoring bias: pass only the revised claims table to a new session with no reasoning chain.
 
 ---
 
