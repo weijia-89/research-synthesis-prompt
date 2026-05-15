@@ -174,16 +174,18 @@ After the table:
 
 **Before generating prompts, ask the user:**
 
-> Which models are you running for each phase? Specify:
-> - Prompt 1 (source verification — needs live web): e.g., Perplexity, Gemini, Claude with search
-> - Prompt 2 (disconfirmation search — needs broad web): e.g., Perplexity, Gemini Deep Research
-> - Prompt 3 (zombie stat trace — needs web): e.g., Perplexity, Claude with search
-> - Prompt 4 (indirectness audit — reasoning only, no web needed): e.g., GPT-4o, Claude, Gemini
-> - Prompt 5 (re-synthesis — reasoning + synthesis): e.g., Claude Opus, GPT-4o
+> Which models are you running for each phase? Specify the model **and** its capability class:
+> - Prompt 1 (source verification): live-web search model
+> - Prompt 2 (disconfirmation search): deep-research model with broad web access
+> - Prompt 3 (zombie stat trace): live-web search model
+> - Prompt 4 (indirectness audit): strong reasoning model (web not required)
+> - Prompt 5 (re-synthesis): highest-reasoning model with long-context synthesis
+>
+> Name the actual provider and model variant you intend to use for each phase, plus whichever switches that provider exposes (browsing/search mode, deep-research mode, extended thinking). The user supplies the model names; this prompt is provider-agnostic.
 
-**Model diversity warning (empirically grounded):** Models from the same provider or base architecture have substantially correlated errors — when both models err on the same question, they agree ~60% of the time (arXiv 2506.07962). Running Prompt 4 on Claude Sonnet after Prompt 1 on Claude with search captures less independent signal than running Prompt 4 on GPT-4o. Same-provider pairings across prompts are not a substitute for architectural diversity. If you must use the same provider across multiple prompts, note this reduces the pipeline's independence and treat the re-synthesis output one confidence tier lower than stated.
+**Model diversity warning (empirically grounded):** Models from the same provider or base architecture have substantially correlated errors — when both models err on the same question, they agree ~60% of the time (arXiv 2506.07962). Reusing the same provider across Prompts 1–5 captures less independent signal than rotating providers. Same-provider pairings across prompts are not a substitute for architectural diversity. If you must use the same provider across multiple prompts, note this reduces the pipeline's independence and treat the re-synthesis output one confidence tier lower than stated.
 
-Adapt each generated prompt to the specific model the user named. Include any model-specific instructions (e.g., Perplexity: use the research mode; Gemini: enable Deep Research; GPT-4o: enable browsing).
+Adapt each generated prompt to the specific model and capability switches the user named. Include any provider-specific instructions the user passes through (e.g., enable browsing, enable deep-research mode, enable extended thinking).
 
 ---
 
@@ -321,7 +323,7 @@ CLAIMS TO AUDIT:
 ---
 
 ### Prompt 5 — Re-synthesis
-**Platform:** Highest-reasoning model available (Claude Opus, GPT-4o, or equivalent)
+**Platform:** Highest-reasoning model with long-context synthesis (provider-agnostic; pick the strongest reasoning variant from a different provider than Prompts 1–4 when possible)
 **Purpose:** Integrate adversarial findings into revised atomic claims with updated confidence scores
 **Note:** Provide the user's model choice when generating this prompt. If Prompt 5 will run on the same model as any of Prompts 1–4, add the model-diversity caveat at the top.
 
@@ -395,7 +397,7 @@ Group by: [AGREEMENT — survived review] | [DOWNGRADED] | [🔴 HUMAN REVIEW] |
 | Want single-pass output | ✓ | |
 | Want to run phases on separate specialized models | | ✓ |
 | Want human checkpoints between phases | | ✓ |
-| Claim domain requires deep search (Perplexity + Gemini DR) | | ✓ |
+| Claim domain requires deep-research-grade search across multiple providers | | ✓ |
 | Time-sensitive, one model run | ✓ | |
 
 **Mode B effectiveness scales with model architectural diversity.** Same-provider pairings across prompts reduce independence gains. Aim for different providers across Prompts 1, 2/3, 4, and 5.

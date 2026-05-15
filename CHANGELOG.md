@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.2 (May 2026)
+
+Stripped model-specific references from `prompt.md`, `adversarial-review-prompt.md`, and `README.md`. The prompts now describe **capability classes** (live-web search model, deep-research model with broad web access, strong reasoning model, highest-reasoning long-context model) rather than naming specific providers or model versions. The Mode B selection step asks the user to name the actual provider and model variant for each phase, so the model-diversity warning lands on whatever the user picked instead of going stale every six months when a provider rebrands.
+
+The empirical model-diversity claim (~60% correlated error on same-provider pairs, arXiv 2506.07962) stays. That's a finding about architecture similarity, not about any specific provider.
+
+Added an MIT `LICENSE`.
+
+---
+
 ## v4.1 (May 2026)
 
 Adversarially reviewed adversarial-review-prompt.md and found five things wrong or overstated.
@@ -22,7 +32,7 @@ Separate adversarial review stage: adversarial-review-prompt.md.
 
 The synthesis prompt could put together a coherent initial report but had no mechanism for actively trying to break what it built. This stage starts from finished claims and tries to prove them wrong. Zombie stat tracing, disconfirmation searches, cross-tool indirectness checks, attack rating on every counterargument.
 
-Two modes. Mode A runs all eight phases in one pass for models with live web access. Mode B generates five prompts for distributing phases across specialized tools — Perplexity for search, GPT-4o for indirectness reasoning, Claude for re-synthesis. Mode B Prompt 5 is always the final step regardless of how you ran phases 1–4.
+Two modes. Mode A runs all eight phases in one pass for models with live web access. Mode B generates five prompts for distributing phases across capability classes — a live-web search model for source verification and disconfirmation, a strong reasoning model for indirectness, and the highest-reasoning long-context model available for re-synthesis. Mode B Prompt 5 is always the final step regardless of how you ran phases 1–4.
 
 ---
 

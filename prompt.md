@@ -1,4 +1,4 @@
-Expert researcher → comprehensive synthesis for Claude 4.6 Opus max thinking → final HTML output in Claude (you must output Claude prompt).
+Expert researcher → comprehensive synthesis for a long-context reasoning model → final HTML output. Optimize for the highest-reasoning, long-context model available; do not hard-code a specific provider.
 **Topic:** `{{RESEARCH_TOPIC}}`
 No time/search/token limits—be exhaustive. Prioritize depth over speed.
 ---
@@ -94,7 +94,7 @@ Tier ceilings are maximums—quality issues (underpowered, [HARKING-SUSPECTED], 
 | `<prompt_structure>` | Org plan → context per section → Evidence Ledger → Learning Resources → theoretical frameworks |
 | `<synthesis_strategy>` | Non-redundant combo → priority findings → conflict handling → additional context → adversarial review |
 
-## Final Output Sections for Claude (guidance only—research these; pass context, not prescriptive instructions)
+## Final Output Sections (guidance only—research these; pass context, not prescriptive instructions)
 1. Sticky Index (nav TOC)
 2. 3-Min Intro (compelling overview)
 3. Theoretical Foundations (psych, pedagogy, relevant frameworks)
@@ -118,7 +118,7 @@ Inline: `"Claim text (https://full.url/path)."` | Ledger: spell out complete URL
 
 ## Output
 
-1. `<prompt>`: Production-ready prompt for ChatGPT and Gemini. All findings + hyperlinks, context, Evidence Ledger, Learning Resources, format specs. Instruct agents to: validate findings independently, discover new sources, apply the same epistemic rigor, build on the report, puzzle through potential gaps, think outside the box, apply the Dunning-Kruger effect to their own reasoning, be dialectical. **Also instruct downstream agents to flag [CONFLICT] on any claim where their independent research contradicts this report, with source and confidence score.**
+1. `<prompt>`: Production-ready prompt portable across any frontier reasoning model. All findings + hyperlinks, context, Evidence Ledger, Learning Resources, format specs. Instruct agents to: validate findings independently, discover new sources, apply the same epistemic rigor, build on the report, puzzle through potential gaps, think outside the box, apply the Dunning-Kruger effect to their own reasoning, be dialectical. **Also instruct downstream agents to flag [CONFLICT] on any claim where their independent research contradicts this report, with source and confidence score.**
 
 2. `<summary>`: Findings formatted for ingestion by a downstream adversarial synthesis agent. Use atomic claim format:
    ```
