@@ -33,7 +33,7 @@ A multi-agent research prompt iterated over several months to produce epistemic 
 
 Cross-agent disagreements surface as `[CONFLICT]` flags and the agent is instructed to evaluate against a confidence matrix that has source tiers, hierarchy of evidence epistemology, and basic frequentist and Bayesian statistical rigor baked in, along with a cursory analysis of methodology best practices.
 
-The part that took the most work was not the synthesis logic but building in the understanding that three agents agreeing does not mean three independent data points. Just because all the people at your gym drink pre-workout does not mean that the 2000% of your DV of taurine they're taking will be anything more than placebo effect. The goal is to incorporate skepticism, not to normalize global confusion.
+The part that took the most work was building in the understanding that three agents agreeing does not mean three independent data points. Just because all the people at your gym drink pre-workout does not mean that the 2000% of your DV of taurine they are taking will be anything more than placebo effect. The goal is to incorporate skepticism rather than normalize global confusion.
 
 The output is an HTML research report with a sticky navigation TOC, theoretical foundations section, tactical implementation guide, inline evidence ledger, and a summary block in atomic `CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS` format, grouped by `[AGREEMENT]`, `[CONFLICT]`, and `[SINGLE SOURCE]`.
 
@@ -43,9 +43,9 @@ The output is an HTML research report with a sticky navigation TOC, theoretical 
 
 **Structured uncertainty.** Claims that can't be anchored to source text get held, not surfaced. Claims rated at ≥70 confidence require a verbatim excerpt from the source. If that excerpt is reconstructed from memory rather than direct text, it is labeled `[QUOTE UNVERIFIED]`. Explicit guardrail against hallucination.
 
-**Meta-evaluation loop.** The prompt was calibrated against topics with known ground truths (exercise science). Confidence thresholds were adjusted until scores tracked actual accuracy. Each version was adversarially reviewed: weaknesses identified, patched, then the next version built on top.
+**Meta-evaluation loop.** I calibrated the prompt against topics with known ground truths from exercise science, then adjusted confidence thresholds until scores tracked actual accuracy. Each version got an adversarial review where I identified weaknesses, patched them, and built the next version on top.
 
-**Consensus ≠ compounded confidence.** Three agents citing the same three papers is one data point, not three. Shared citation bases are flagged explicitly so downstream synthesis agents don't overweight replicated-looking evidence. Only true replication gets a bonus, and that is still less weight than a well-designed meta-analysis with a bunch of RCTs as sources.
+**Consensus ≠ compounded confidence.** Three agents citing the same three papers is one data point. The synthesis agent flags shared citation bases explicitly so downstream agents do not overweight replicated-looking evidence. Only true replication gets a bonus, and that is still less weight than a well-designed meta-analysis with a bunch of RCTs as sources.
 
 **Temporal gate.** Claims where the primary evidence may fall within 12 months of an LLM's training cutoff are labeled `[RECENCY RISK]` and treated as provisional until verified against live sources.
 
@@ -81,7 +81,7 @@ The two stages are doing different work: synthesis finds sources and builds a pi
 
 [`skill/SKILL.md`](./skill/SKILL.md) is a self-contained agent-loadable skill (v2.0.0) that gives an LLM coding agent the same epistemic discipline at the coding-task level. It runs a 7-tier loop (Type → Stakes → Retrieve → Read → Verify → Reconcile → Report), tags every load-bearing claim with source + read-depth + confidence, refuses to fabricate citations, recognizes mode collapse when agents agree because of shared priors, and is calibration-checked offline via Brier-score tracking.
 
-It is designed to be loaded automatically whenever the agent encounters trigger words ("research", "investigate", "analyze", "validate", "compare", "deep-dive", "second-opinion", "audit", "fact-check", "literature-review"). See [`skill/SKILL.md`](./skill/SKILL.md) §0 for the stakes ladder (L0–L4) and refusal conditions.
+I designed it to load automatically whenever the agent encounters trigger words ("research", "investigate", "analyze", "validate", "compare", "deep-dive", "second-opinion", "audit", "fact-check", "literature-review"). See [`skill/SKILL.md`](./skill/SKILL.md) §0 for the stakes ladder (L0–L4) and refusal conditions.
 
 Supporting references in [`skill/references/`](./skill/references/) cover agentic-research patterns, bias catalog, causal inference primer, confidence calibration (Brier scoring), failure-log of prior bootstrap traps, LLM-specific failure modes, output schemas, replication-and-validity rules, and source-grading tiers.
 
@@ -107,9 +107,16 @@ They were doing the same epistemics at two different scales. The prompt was for 
 
 ## Related portfolio repos
 
-- **`weijia-89/vibe-check`**: AST + regex scanner that surfaces hallucinated APIs, bare `except:` blocks, and other AI-tell patterns in PR diffs. Pairs with this repo when a `palamedes` research output gets turned into code: run the synthesis output through claim verification first, then run any generated patch through `vibe-check` before merge.
-- **`weijia-89/playwrighter`**: production Playwright pattern library. Uses the same evidence-discipline structure on the test side: locator-strategy first, anti-patterns explicitly named, citations to upstream Playwright docs for every claim.
-- **`weijia-89/trainer.skill`**: the entrypoint and routing skill for an 8-specialist agent toolkit. Loads this repo's `skill/SKILL.md` when the agent encounters research triggers.
+palamedes sits in a portfolio of evidence-discipline tooling. The two repos that pair most directly:
+
+- **[`weijia-89/vibe-check`](https://github.com/weijia-89/vibe-check)**: a reviewer evidence surfacer for PRs that may contain LLM-generated code. Pairs with palamedes when a research output gets turned into code, where claim verification comes first and the patch goes through vibe-check before merge.
+- **[`weijia-89/oncology-rag-lab`](https://github.com/weijia-89/oncology-rag-lab)**: offline RAG evaluation lab with DeepEval, Phoenix tracing, drift detection, and a regression-gated CI. Same evidence-discipline shape applied to LLM evaluation rather than research synthesis.
+
+Three more in the same ethos:
+
+- **[`weijia-89/playwrighter`](https://github.com/weijia-89/playwrighter)**: production Playwright pattern library plus a working test-quality scorer. Patterns trace to primary Playwright docs and the scorer mirrors the patterns in a regex-and-AST rubric.
+- **[`weijia-89/northwind-qa`](https://github.com/weijia-89/northwind-qa)**: a 50-test Playwright suite that uses playwrighter's patterns end-to-end against a React 19 SUT and ships seven real bug reports with regression-test guards.
+- **[`weijia-89/wcag-auditor`](https://github.com/weijia-89/wcag-auditor)**: accessibility audit tool that replaced its LLM-based fix engine with deterministic per-rule templates in v0.3, because the templates were already accurate enough.
 
 ---
 
