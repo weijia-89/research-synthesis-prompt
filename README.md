@@ -2,12 +2,12 @@
 
 Rigorous LLM research, in two layers.
 
-In Greek myth, Palamedes was the inventor of measurement and the one who exposed Odysseus's feigned madness — and got framed and stoned to death by Odysseus in revenge. Patron saint of "the clever one who catches the deceiver and loses anyway." This repo is named for him because the work is the same shape: catching where a model is bluffing, anchoring claims to source text, and refusing to let agreement between agents count as evidence when the agents share priors.
+In Greek myth, Palamedes was the inventor of measurement and the one who exposed Odysseus's feigned madness. Odysseus framed him and had him stoned to death in revenge. Patron saint of "the clever one who catches the deceiver and loses anyway." The repo is named for him because the work has that shape: catching where a model is bluffing, anchoring claims to source text, refusing to let agreement between agents count as evidence when the agents share priors.
 
 This repo merges two previous projects:
 
-- **`research-synthesis-prompt`** (May 7–15, 2026) — a multi-agent dialectic synthesis prompt that has been adversarially reviewed across four major versions. Lives at [`prompts/`](./prompts/).
-- **`ai-research`** (May 14–16, 2026) — an agent-loadable skill that gives an LLM coding agent the same epistemic discipline at the *coding-task* level, not the *research-report* level. Lives at [`skill/`](./skill/).
+- **`research-synthesis-prompt`** (May 7 to 15, 2026): a multi-agent dialectic synthesis prompt iterated across four major versions, each adversarially reviewed. Lives at [`prompts/`](./prompts/).
+- **`ai-research`** (May 14 to 16, 2026): an agent-loadable skill that gives an LLM coding agent the same epistemic discipline at the *coding-task* level rather than the *research-report* level. Lives at [`skill/`](./skill/).
 
 Both share the same core methodology (process-based evaluation, verbatim source quoting, hierarchy of evidence, dialectic adversarial review, recognition that consensus across similar models is not independence). The two surfaces are different lift points.
 
@@ -102,6 +102,14 @@ rsync -a skill/ ~/.claude/skills/palamedes/
 ## Why combine them
 
 They were doing the same epistemics at two different scales. The prompt was for one-shot human-driven deep research; the skill was for the same discipline applied continuously to coding-agent tasks. Keeping them in separate repos invited drift: a fix to the meta-evaluation calibration in the prompt did not propagate to the skill, and vice versa. The merged repo has one canonical evidence tier table, one canonical confidence-calibration doc, one canonical failure-log, and the two surfaces (prompt and skill) reference the same underlying methodology.
+
+---
+
+## Related portfolio repos
+
+- **`weijia-89/vibe-check`**: AST + regex scanner that surfaces hallucinated APIs, bare `except:` blocks, and other AI-tell patterns in PR diffs. Pairs with this repo when a `palamedes` research output gets turned into code: run the synthesis output through claim verification first, then run any generated patch through `vibe-check` before merge.
+- **`weijia-89/playwrighter`**: production Playwright pattern library. Uses the same evidence-discipline structure on the test side: locator-strategy first, anti-patterns explicitly named, citations to upstream Playwright docs for every claim.
+- **`weijia-89/trainer.skill`**: the entrypoint and routing skill for an 8-specialist agent toolkit. Loads this repo's `skill/SKILL.md` when the agent encounters research triggers.
 
 ---
 

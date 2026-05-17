@@ -10,16 +10,16 @@
 
 ### Layout
 
-- `prompts/research-synthesis.md` (was `prompt.md`) — the multi-agent dialectic synthesis prompt.
-- `prompts/adversarial-review.md` (was `adversarial-review-prompt.md`) — the post-synthesis adversarial-pass prompt.
-- `skill/SKILL.md` (was `weijia-89/ai-research/SKILL.md`) — the agent-loadable research-loop skill.
-- `skill/REFERENCES.md`, `skill/REVIEW.md`, `skill/references/*.md` — supporting docs for the skill.
-- `assets/` — image assets for the README.
+- `prompts/research-synthesis.md` (was `prompt.md`): the multi-agent dialectic synthesis prompt.
+- `prompts/adversarial-review.md` (was `adversarial-review-prompt.md`): the post-synthesis adversarial-pass prompt.
+- `skill/SKILL.md` (was `weijia-89/ai-research/SKILL.md`): the agent-loadable research-loop skill.
+- `skill/REFERENCES.md`, `skill/REVIEW.md`, `skill/references/*.md`: supporting docs for the skill.
+- `assets/`: image assets for the README.
 
 ### Predecessor repos
 
-- `weijia-89/research-synthesis-prompt` — this repo's git history; renamed via `gh repo rename`.
-- `weijia-89/ai-research` — content merged here; the standalone repo is archived as of 2026-05-16.
+- `weijia-89/research-synthesis-prompt`: this repo's git history, renamed via `gh repo rename`.
+- `weijia-89/ai-research`: content merged here; the standalone repo is archived as of 2026-05-16.
 
 ---
 
