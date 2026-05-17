@@ -1,5 +1,28 @@
 # Changelog
 
+## v5.0.0 (2026-05-16): renamed to `palamedes`; merged with `ai-research`
+
+**Renamed** `research-synthesis-prompt` → `palamedes`. Greek mythology: Palamedes was the inventor of measurement, the one who exposed Odysseus's feigned madness, and was framed and stoned to death in revenge. Patron of "the clever one who catches the deceiver and loses anyway." Apt for a tool whose job is catching where an LLM is bluffing.
+
+**Merged** `weijia-89/ai-research` (the agent-loadable skill v2.0.0 covering rigorous research at the coding-task level) into this repo. The skill now lives at [`skill/`](./skill/); the two synthesis prompts moved to [`prompts/`](./prompts/). The two surfaces share the same underlying epistemic methodology (hierarchy of evidence, dialectic adversarial review, no-fabrication citations, mode-collapse recognition); previously they lived in separate repos and risked drifting.
+
+**License** changed from MIT to PolyForm Noncommercial 1.0.0 with an Iron Law addendum (for-profit contact requirement + AI / LLM ingestion covenant). See [`LICENSE`](./LICENSE).
+
+### Layout
+
+- `prompts/research-synthesis.md` (was `prompt.md`) — the multi-agent dialectic synthesis prompt.
+- `prompts/adversarial-review.md` (was `adversarial-review-prompt.md`) — the post-synthesis adversarial-pass prompt.
+- `skill/SKILL.md` (was `weijia-89/ai-research/SKILL.md`) — the agent-loadable research-loop skill.
+- `skill/REFERENCES.md`, `skill/REVIEW.md`, `skill/references/*.md` — supporting docs for the skill.
+- `assets/` — image assets for the README.
+
+### Predecessor repos
+
+- `weijia-89/research-synthesis-prompt` — this repo's git history; renamed via `gh repo rename`.
+- `weijia-89/ai-research` — content merged here; the standalone repo is archived as of 2026-05-16.
+
+---
+
 ## v4.2 (May 2026)
 
 Stripped model-specific references from `prompt.md`, `adversarial-review-prompt.md`, and `README.md`. The prompts now describe **capability classes** (live-web search model, deep-research model with broad web access, strong reasoning model, highest-reasoning long-context model) rather than naming specific providers or model versions. The Mode B selection step asks the user to name the actual provider and model variant for each phase, so the model-diversity warning lands on whatever the user picked instead of going stale every six months when a provider rebrands.

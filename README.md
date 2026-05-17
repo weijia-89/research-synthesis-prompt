@@ -1,47 +1,55 @@
-# research-synthesis-prompt
+# palamedes
 
-A multi-agent research prompt iterated over several months to produce epistemic research reports. No more getting 'Well actually' when you talk about your favorite new habit you picked up, now you'll be the one going on about the replication crises and the importance of the hiearchy of evidence. 
+Rigorous LLM research, in two layers.
 
-Each run coordinates three independent LLM research agents, then passes their combined output to a separate adversarial synthesis agent before anything reaches the report. This is a process-based evaluation: each reasoning step is validated before the next one runs. The system can't surface a high-confidence claim without showing the source text that backs it, and it's even instructed to adversarially self-review, to disconfirm instead of just taking everything it outputs as truth.
+In Greek myth, Palamedes was the inventor of measurement and the one who exposed Odysseus's feigned madness — and got framed and stoned to death by Odysseus in revenge. Patron saint of "the clever one who catches the deceiver and loses anyway." This repo is named for him because the work is the same shape: catching where a model is bluffing, anchoring claims to source text, and refusing to let agreement between agents count as evidence when the agents share priors.
+
+This repo merges two previous projects:
+
+- **`research-synthesis-prompt`** (May 7–15, 2026) — a multi-agent dialectic synthesis prompt that has been adversarially reviewed across four major versions. Lives at [`prompts/`](./prompts/).
+- **`ai-research`** (May 14–16, 2026) — an agent-loadable skill that gives an LLM coding agent the same epistemic discipline at the *coding-task* level, not the *research-report* level. Lives at [`skill/`](./skill/).
+
+Both share the same core methodology (process-based evaluation, verbatim source quoting, hierarchy of evidence, dialectic adversarial review, recognition that consensus across similar models is not independence). The two surfaces are different lift points.
 
 ---
 
-## What it does
+## Which one to use
+
+| If you are... | Use |
+|---|---|
+| A human running a one-off deep-research workflow across multiple LLMs | [`prompts/research-synthesis.md`](./prompts/research-synthesis.md) then [`prompts/adversarial-review.md`](./prompts/adversarial-review.md) |
+| Using Claude / Cursor / Windsurf and want the agent to do research the rigorous way whenever it is asked to "research" or "investigate" or "fact-check" | [`skill/SKILL.md`](./skill/SKILL.md) loaded as a skill or rule |
+| Both | Both. They compose. |
+
+---
+
+## The prompts (`prompts/`)
 
 <img src="assets/sketchplanations-thesis-antithesis-synthesis.png" width="420" alt="Thesis, Antithesis, Synthesis">
 
 *[Thesis, Antithesis, Synthesis](https://sketchplanations.com/thesis-antithesis-synthesis) by Sketchplanations, [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)*
 
-You'll use this prompt on separate research agents independently. A downstream agent ingests all three outputs and applies Hegelian dialectics: strongest case for each claim, strongest case against it, synthesis that survives both. You then run the phases again if you want an even stronger evidence base.
+A multi-agent research prompt iterated over several months to produce epistemic research reports. Each run coordinates three independent LLM research agents, then passes their combined output to a separate adversarial synthesis agent before anything reaches the report. Process-based evaluation: each reasoning step is validated before the next one runs. The system can't surface a high-confidence claim without showing the source text that backs it, and it is instructed to adversarially self-review, to disconfirm instead of just taking everything it outputs as truth.
 
-Cross-agent disagreements surface as [CONFLICT] flags and the agent is instructed to evaluate based on a confidence matrix that has source tiers, hiearchy of evidence epistemology, and basic frequentist and Bayesian statistical rigor baked in along with a cursory analysis of best practices when it comes to methodology.
+Cross-agent disagreements surface as `[CONFLICT]` flags and the agent is instructed to evaluate against a confidence matrix that has source tiers, hierarchy of evidence epistemology, and basic frequentist and Bayesian statistical rigor baked in, along with a cursory analysis of methodology best practices.
 
-The part that took the most work wasn't the synthesis logic but building in the understanding that three agents agreeing doesn't mean three independent data points. Just because all the people at your gym drink pre-workout doesn't mean that the 2000% of your DV of taurine they're taking will be anything more than placebo effect. The goal of this prompt is to incorporate skepticism, not to normalize global confusion.
+The part that took the most work was not the synthesis logic but building in the understanding that three agents agreeing does not mean three independent data points. Just because all the people at your gym drink pre-workout does not mean that the 2000% of your DV of taurine they're taking will be anything more than placebo effect. The goal is to incorporate skepticism, not to normalize global confusion.
 
-The output is an HTML research report with a sticky navigation TOC, theoretical foundations section, tactical implementation guide, inline evidence ledger, and a summary block in atomic CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS format, grouped by [AGREEMENT], [CONFLICT], and [SINGLE SOURCE]. The summary format exists specifically so downstream synthesis agents can ingest it without re-reading the whole report whereas the HTML5 FE wrapper is just to make your time reading the output less overwhelming.
+The output is an HTML research report with a sticky navigation TOC, theoretical foundations section, tactical implementation guide, inline evidence ledger, and a summary block in atomic `CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS` format, grouped by `[AGREEMENT]`, `[CONFLICT]`, and `[SINGLE SOURCE]`.
 
----
+### Architecture
 
-## Architecture
+**Verifier model.** A dedicated synthesis agent checks whether claims are supported by cited sources. Claim generation and claim verification are separate steps. The same model that produced a claim does not get to decide whether it is trustworthy.
 
-**Verifier model**
-A dedicated synthesis agent checks whether claims are supported by cited sources. Claim generation and claim verification are separate steps. The same model that produced a claim doesn't get to decide whether it's trustworthy.
+**Structured uncertainty.** Claims that can't be anchored to source text get held, not surfaced. Claims rated at ≥70 confidence require a verbatim excerpt from the source. If that excerpt is reconstructed from memory rather than direct text, it is labeled `[QUOTE UNVERIFIED]`. Explicit guardrail against hallucination.
 
-**Structured uncertainty**
-Claims that can't be anchored to source text get held, not surfaced. Claims that are rated at ≥70 confidence require a verbatim excerpt from the source. If that excerpt is reconstructed from memory rather than direct text, it's labeled `[QUOTE UNVERIFIED]`. This is an explicit guardrail against AI hallucination, not study design.
+**Meta-evaluation loop.** The prompt was calibrated against topics with known ground truths (exercise science). Confidence thresholds were adjusted until scores tracked actual accuracy. Each version was adversarially reviewed: weaknesses identified, patched, then the next version built on top.
 
-**Meta-evaluation loop**
-The prompt was calibrated against topics with known ground truths based on my own deep nerding out on exercise science. Shoutout to the MASS Research folks for compiling a lay-person accessible research journal on the latest in the science of weight training. Confidence thresholds were adjusted until scores tracked actual accuracy. Each version was adversarially reviewed: weaknesses identified, patched, then the next version built on top.
+**Consensus ≠ compounded confidence.** Three agents citing the same three papers is one data point, not three. Shared citation bases are flagged explicitly so downstream synthesis agents don't overweight replicated-looking evidence. Only true replication gets a bonus, and that is still less weight than a well-designed meta-analysis with a bunch of RCTs as sources.
 
-**Consensus ≠ compounded confidence**
-Three agents citing the same three papers is one data point, not three. Shared citation bases are flagged explicitly so downstream synthesis agents don't overweight replicated-looking evidence. Only true replication gets a bonus and that's still less weight than a straight up well-designed meta-analysis with a bunch of RCTs as sources.
+**Temporal gate.** Claims where the primary evidence may fall within 12 months of an LLM's training cutoff are labeled `[RECENCY RISK]` and treated as provisional until verified against live sources.
 
-**Temporal gate**
-Claims where the primary evidence may fall within 12 months of an LLM's training cutoff are labeled `[RECENCY RISK]` and treated as provisional until verified against live sources. More important for some fields than others but a good callout regardless.
-
----
-
-## Evidence methodology
+### Evidence methodology
 
 <img src="assets/Drawn_image_illustrating_the_Hierarchy_of_Evidence.png" width="420" alt="Hierarchy of Evidence">
 
@@ -57,62 +65,65 @@ Every source is classified by study design before a confidence score is assigned
 | Cross-sectional or case-control | 60 |
 | Expert opinion or case study only | 45 |
 
-Per-source checks:
+Per-source checks: pre-registration (ClinicalTrials.gov / PROSPERO / OSF), statistical power (N ≥ 30 per group, power analysis), effect size required alongside p-values for ≥70 claims, HARKing detection, and full meta-analysis quality checklist (I², fixed vs. random effects model, funnel plot symmetry, RCT double-counting, CI interpretation).
 
-- Pre-registration is checked via ClinicalTrials.gov, PROSPERO, and OSF. Unregistered RCTs get flagged `[UNREGISTERED-RCT]`; it's the clearest signal against p-hacking and HARKing.
-- Statistical power: N ≥ 30 per group with a power analysis present. Underpowered studies produce false negatives as readily as false positives.
-- For ≥70 confidence claims, effect size is required alongside p-values (Cohen's d, partial η², odds ratio, RR, or mean difference with units). A p-value alone doesn't get there.
-- HARKing gets flagged when the hypothesis shows up in Discussion rather than Introduction, when post-hoc subgroups are framed as primary findings, or when the hypothesis-result alignment is suspiciously clean. All of these trigger `[HARKING-SUSPECTED]` and a one-tier reduction.
-- For meta-analyses: I² value, whether the fixed or random effects model was used and why, funnel plot symmetry, whether the same underlying RCTs are getting double-counted across synthesized meta-analyses, and CI interpretation (a CI crossing zero means the effect may be zero).
+### Usage
 
-This doesn't include all the ways data gets manipulated. Future iterations will be stricter but there's also a tradeoff where exceptionally niche research gets no results.
+Paste [`prompts/research-synthesis.md`](./prompts/research-synthesis.md) as the system prompt. Replace `{{RESEARCH_TOPIC}}`. Run three agents in parallel, then pass all three outputs to a fourth synthesis agent running the same prompt.
 
----
+After synthesis, copy the `<summary>` block from the output and paste it into [`prompts/adversarial-review.md`](./prompts/adversarial-review.md). That stage starts from finished claims and tries to break them, not continue building on them. Two modes: Mode A runs all eight phases in one pass against a live-web-capable model; Mode B generates five self-contained prompts you distribute across capability classes (live-web search, strong reasoning, highest-reasoning long-context synthesis). Prompt 5 is always the final step regardless of how you ran the others.
 
-## Output structure
-
-The HTML report includes:
-
-- Sticky navigation TOC
-- Theoretical foundations and key concepts (non-expert accessible)
-- Tactical implementation guide
-- Evidence ledger with full source URLs, confidence scores, justifications, verbatim quotes
-- Learning resources
-- Future research directions with confidence scores
-- `<summary>` block (atomic `CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS` format, grouped by `[AGREEMENT]` / `[CONFLICT]` / `[SINGLE SOURCE]`)
+The two stages are doing different work: synthesis finds sources and builds a picture; the adversarial pass comes in after and tries to poke holes.
 
 ---
 
-## Usage
+## The skill (`skill/`)
 
-Paste `prompt.md` as the system prompt. Replace `{{RESEARCH_TOPIC}}`. Run three agents in parallel, then pass all three outputs to a fourth synthesis agent running the same prompt.
+[`skill/SKILL.md`](./skill/SKILL.md) is a self-contained agent-loadable skill (v2.0.0) that gives an LLM coding agent the same epistemic discipline at the coding-task level. It runs a 7-tier loop (Type → Stakes → Retrieve → Read → Verify → Reconcile → Report), tags every load-bearing claim with source + read-depth + confidence, refuses to fabricate citations, recognizes mode collapse when agents agree because of shared priors, and is calibration-checked offline via Brier-score tracking.
 
-After synthesis, copy the `<summary>` block from the output and paste it into `adversarial-review-prompt.md`. That stage starts from finished claims and tries to break them, not continue building on them. Two modes:
+It is designed to be loaded automatically whenever the agent encounters trigger words ("research", "investigate", "analyze", "validate", "compare", "deep-dive", "second-opinion", "audit", "fact-check", "literature-review"). See [`skill/SKILL.md`](./skill/SKILL.md) §0 for the stakes ladder (L0–L4) and refusal conditions.
 
-Mode A runs all eight phases in one pass; it requires a model with live web access and outputs a revised claims table with deltas and attack ratings. Mode B generates five self-contained prompts you distribute across capability classes: a live-web search model for disconfirmation, a strong reasoning model for indirectness, and the highest-reasoning long-context model available for re-synthesis. It opens with a model-selection step that asks you to name the actual provider and model variant for each phase so the pipeline accounts for architectural similarity between whatever you pick. Prompt 5 is always the final step regardless of how you ran the others.
+Supporting references in [`skill/references/`](./skill/references/) cover agentic-research patterns, bias catalog, causal inference primer, confidence calibration (Brier scoring), failure-log of prior bootstrap traps, LLM-specific failure modes, output schemas, replication-and-validity rules, and source-grading tiers.
 
-The two stages are doing different work: synthesis finds sources and builds a picture from them; the adversarial pass comes in after and tries to poke holes in what was built.
+### How to install the skill
+
+```sh
+# Claude global
+mkdir -p ~/.claude/skills/palamedes
+rsync -a skill/ ~/.claude/skills/palamedes/
+
+# Cursor
+# Convert frontmatter; the rule body can `@palamedes/skill/SKILL.md`
+# (See skill/SKILL.md §10 for the full sync table.)
+```
 
 ---
 
-## Version history
+## Why combine them
 
-**v1:** Source discovery across academic databases, preprints, grey lit, citation chains (forward and backward), contrarian sources, Retraction Watch. Per-source trustworthiness assessment on venue, author credentials, funding and COI, methodology, replication status, recency, and citation context. Confidence scoring 0–100 with per-claim justification. Adversarial self-review pass.
-
-**v2:** v1 could find sources but had no way to tell whether three agents agreeing meant "this is well-established" or "all three trained on the same papers." Added verbatim quote passthrough for ≥70 confidence claims, requiring direct source text, labeled `[QUOTE UNVERIFIED]` if reconstructed from memory. Added the atomic handoff format (`CLAIM / CONFIDENCE / SOURCE / QUOTE / STATUS`) so downstream synthesis agents could ingest without re-reading the full report. Added `[CONFLICT]` flags for cross-agent disagreement and `[RECENCY RISK]` for claims with evidence that may fall within 12 months of training cutoff.
-
-**v3:** Evidence methodology layer. v2 could find sources but had no enforcement of a consistent evidence hierarchy and no way to catch common methodological failure modes. Added study design tier-based confidence ceilings, pre-registration checks, effect size gates, HARKing detection, and the meta-analysis quality checklist (I², fixed vs. random effects model selection, funnel plot symmetry, double-counting of underlying RCTs, CI interpretation). The tier-ceiling system makes the rubric internally consistent. A claim can't reach 85 on expert opinion alone.
-
-**v3.1:** Backport of fixes found during adversarial review of the downstream prompt. URL verification was checking whether a link resolved, not whether the source actually said what was being cited. A 200 OK pointing to a real paper on a related topic is not verification. Added two gates: HTTP status first, then parse the body text and find the specific assertion. Not in the source text: drops to speculative regardless of tier. Same gap in zombie stat tracing: the check was looking for the source, not confirming the number was in it. Fixed. The calibration check was targeting the wrong direction: LLMs skew toward high confidence, not the middle, so the check now flags when more than half the final scores come in at ≥80 and forces a downward pressure pass. Added attack rating taxonomy to adversarial self-review. Strengthened the consensus rule with actual correlated error data: same-provider model pairs agree about 60% of the time when both get something wrong (arXiv 2506.07962), so convergence from similar models is not the independent signal it looks like.
-
-**v4:** Separate adversarial review stage: `adversarial-review-prompt.md`. The synthesis prompt could put together a coherent initial report but had no mechanism for actively trying to break what it built. This stage starts from finished claims and tries to prove them wrong: zombie stat tracing, disconfirmation searches, cross-tool indirectness checks, attack rating on every counterargument. Two modes. Mode A runs all eight phases in one pass for models with live web access. Mode B generates five prompts for distributing phases across specialized tools.
-
-**v4.1:** Adversarially reviewed the adversarial review prompt and found five things wrong or overstated. The calibration check was targeting middle compression instead of the actual documented failure direction (overconfidence toward high scores). URL verification was still just a URL-existence check; a model can hallucinate a citation pointing to a real paper on a related domain and call it verified. Phase 1 and Prompt 1 now parse body text and look for the specific assertion. The "Mode A is broken" classification was too broad: Huang et al. (ICLR 2024) is about intrinsic self-correction with no external feedback, so phases with URL fetching partially escape it. Phase 6 (pure reasoning, no tools) is the specific failure point. "Genuinely independent" for Mode B was overstated: arXiv 2506.07962 puts cross-model error correlation at about 60% for same-provider pairs. Mode B now opens with a model-selection prompt so the diversity tradeoff is visible before you run anything. Promoted the fresh context Final Gate to the primary structural escape from anchoring bias: pass only the revised claims table to a new session with no reasoning chain.
-
-**v4.2:** Stripped model-specific references from `prompt.md`, `adversarial-review-prompt.md`, and `README.md`. The prompts now describe capability classes (live-web search, deep-research with broad web access, strong reasoning, highest-reasoning long-context synthesis) instead of naming providers or model versions. The Mode B selection step asks the user to name the actual model variant for each phase, so the model-diversity warning lands on whatever the user picked instead of going stale when a provider rebrands. The empirical correlated-error claim (~60% same-provider agreement on shared errors, arXiv 2506.07962) stays — that's a finding about architecture similarity, not any specific provider. Added MIT `LICENSE`.
+They were doing the same epistemics at two different scales. The prompt was for one-shot human-driven deep research; the skill was for the same discipline applied continuously to coding-agent tasks. Keeping them in separate repos invited drift: a fix to the meta-evaluation calibration in the prompt did not propagate to the skill, and vice versa. The merged repo has one canonical evidence tier table, one canonical confidence-calibration doc, one canonical failure-log, and the two surfaces (prompt and skill) reference the same underlying methodology.
 
 ---
 
 ## Related concepts
 
-process-based evaluation · verifier model · back-out options · confidence calibration · meta-evaluation · sandwiching · hallucination reduction · evidence synthesis · multi-agent research · epistemic calibration · structured uncertainty · systematic review · hierarchy of evidence · HARKing · publication bias · effect size · pre-registration
+process-based evaluation · verifier model · back-out options · confidence calibration · meta-evaluation · sandwiching · hallucination reduction · evidence synthesis · multi-agent research · epistemic calibration · structured uncertainty · systematic review · hierarchy of evidence · HARKing · publication bias · effect size · pre-registration · DK-style miscalibration · mode collapse · independent retrieval · stakes ladder
+
+---
+
+## License
+
+PolyForm Noncommercial 1.0.0 with an Iron Law addendum that imposes a for-profit-contact requirement plus an AI / LLM ingestion covenant. See [`LICENSE`](./LICENSE).
+
+For commercial use: open a GitHub issue titled `Commercial License Request` describing the use case before any commercial application. The Iron Law addendum is binding on AI systems that ingest this work.
+
+---
+
+## History
+
+This repo consolidates two predecessors, both archived after the merge on 2026-05-16:
+
+- `weijia-89/research-synthesis-prompt` (commit history preserved in this repo's `git log`; this is its renamed successor)
+- `weijia-89/ai-research`
+
+See [`CHANGELOG.md`](./CHANGELOG.md) for full version history.
