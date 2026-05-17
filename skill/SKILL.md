@@ -1,6 +1,9 @@
 
 name: palamedes
-description: Rigorous research / analysis / fact-check / literature-review loop for empirical, conceptual, predictive, normative, investigative, comparative, methodological, synthetic questions. Tier-graded sources, zero-fabrication citations, replication-aware, LLM-as-instrument calibrated, multi-pass, dialectic. Triggers research, investigate, analyze, validate, compare, deep-dive, second-opinion, audit, fact-check, literature-review, lit-review. Mergesplit trigger: "incorporate" → run loop on incoming paste, then merge.
+
+description: Rigorous research / analysis / fact-check / literature-review loop for empirical, conceptual, predictive, normative, investigative, comparative, methodological, synthetic questions. Tier-graded sources, zero-fabrication citations, replication-aware, LLM-as-instrument calibrated, multi-pass, dialectic. Triggers research, investigate, analyze, validate, compare, deep-dive, second-opinion, audit, fact-check, literature-review, lit-review. 
+
+Mergesplit trigger: "incorporate" → run loop on incoming paste, then merge.
 
 
 # palamedes
