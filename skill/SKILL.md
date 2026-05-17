@@ -204,7 +204,7 @@ Adapt shape to host (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`). Loop is fixed; s
 
 ## 8. Anti-patterns
 
-**Top 4 (absolute, never — iron laws):**
+**Top 4 (absolute, never, iron laws):**
 1. Fabricated cite, author + year + title combo not retrieved this session.
 2. `[T*-verified]` tag without retrieval this session OR without row in `REFERENCES.md`.
 3. Convergence-as-truth, N passes agree → high confidence, without independent retrieval.

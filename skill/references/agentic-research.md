@@ -111,7 +111,7 @@ State the harness profile at session start when stakes ≥ L3.
 
 If the user asks "is benchmark X meaningful for Y?":
 
-- Check training contamination, was X in pretraining? SWE-bench [SWE-BENCH-2023] has known contamination concerns per follow-up work — note: that meta-claim is `[inferred:meta-research]` (from SWE-bench Verified by OpenAI 2024 and repo-level analyses, not from the original Jimenez et al. paper). Held-out splits matter.
+- Check training contamination, was X in pretraining? SWE-bench [SWE-BENCH-2023] has known contamination concerns per follow-up work, note: that meta-claim is `[inferred:meta-research]` (from SWE-bench Verified by OpenAI 2024 and repo-level analyses, not from the original Jimenez et al. paper). Held-out splits matter.
 - Check distribution match, does X resemble production traffic?
 - GAIA [GAIA-2023], τ-bench [TAU-BENCH-2024], MLE-bench [MLE-BENCH-2024], METR [METR-2025] are agentic-task benchmarks; results lag production speed by 6–18 months `[inferred:author-heuristic]` (this lag-estimate is the skill author's; not from the benchmark papers themselves). METR's empirical doubling-time finding (~7 months for 50%-success task length) gives the closest grounded estimate.
 - "SOTA on X" is rarely transferable to your domain unless X resembles your domain.
